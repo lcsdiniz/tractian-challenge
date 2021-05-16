@@ -1,0 +1,20 @@
+.logo {
+  background-color: red;
+  -webkit-mask: url('../../public/tractianLogo.svg') no-repeat center;
+  mask: url('../../public/tractianLogo.svg') no-repeat center;
+}
+.loginForm {
+  width: 350px;
+}
+
+.loginFormForgot {
+  float: right;
+}
+
+.antColRtl .loginFormForgot {
+  float: left;
+}
+
+.loginFormButton {
+  width: 100%;
+}
