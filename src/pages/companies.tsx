@@ -2,7 +2,6 @@ import { Layout, Table } from 'antd';
 import "antd/dist/antd.css";
 import { GetStaticProps } from "next";
 import Head from 'next/head';
-import React, { useState } from 'react';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import SideBar from '../components/SideBar';
@@ -19,9 +18,7 @@ interface CompaniesProps {
   companiesTableData: CompaniesTableData[];
 }
 
-
 export default function Companies({ companiesTableData }: CompaniesProps) {
-  const [dataSource, setDataSource] = useState(companiesTableData);
 
   const columns = [
     {
@@ -48,7 +45,7 @@ export default function Companies({ companiesTableData }: CompaniesProps) {
           <Content style={{ padding: "0 32px" }}>
             
             <div className={styles.siteLayoutBackground} style={{ marginTop: 16, minHeight: 360 }}>
-              <Table dataSource={dataSource} columns={columns} />
+              <Table dataSource={companiesTableData} columns={columns} rowKey="id" />
             </div>
           </Content>
           <Footer />

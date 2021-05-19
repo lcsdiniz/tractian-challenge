@@ -2,12 +2,13 @@ import { Layout, Table } from 'antd';
 import "antd/dist/antd.css";
 import { GetStaticProps } from "next";
 import Head from 'next/head';
-import React, { useState } from 'react';
+import React from 'react';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import SideBar from '../components/SideBar';
 import { api } from '../services/api';
 import styles from '../styles/Assets.module.scss';
+import { CompanyType, UnitType, UserType } from '../types/types';
 
 const { Content } = Layout;
 
@@ -25,7 +26,6 @@ interface UsersProps {
 
 
 export default function Users({ usersTableData }: UsersProps) {
-  const [dataSource, setDataSource] = useState(usersTableData);
 
   const columns = [
     {
@@ -66,7 +66,7 @@ export default function Users({ usersTableData }: UsersProps) {
           <Header title="Users" />
           <Content style={{ padding: "0 32px" }}>
             <div className={styles.siteLayoutBackground} style={{ marginTop: 16, minHeight: 360 }}>
-              <Table dataSource={dataSource} columns={columns} />
+              <Table dataSource={usersTableData} columns={columns} rowKey="id" />
             </div>
           </Content>
           <Footer />
@@ -81,16 +81,16 @@ export const getStaticProps: GetStaticProps = async () => {
   const companiesResponse = await api.get('/companies');
   const unitsResponse = await api.get('/units');
 
-  const usersTableData = usersResponse.data.map(user => {
-    const company = companiesResponse.data.filter(company => company.id === user.companyId);
-    const unit = unitsResponse.data.filter(unit => unit.id === user.unitId);
+  const usersTableData = usersResponse.data.map((user: UserType) => {
+    const company = companiesResponse.data.filter((company: CompanyType) => company.id === user.companyId);
+    const unit = unitsResponse.data.filter((unit: UnitType) => unit.id === user.unitId);
 
     return {
       id: user.id,
       email: user.email,
       name: user.name,
-      unit: unit[0].name.replace('Unidade', ''),
-      company: company[0].name.replace('Empresa', ''),
+      unit: unit[0].name,
+      company: company[0].name,
     }
   })
 

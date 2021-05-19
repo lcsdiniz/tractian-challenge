@@ -2,11 +2,14 @@ import { Badge, Descriptions, Image, Layout, Typography } from 'antd';
 import "antd/dist/antd.css";
 import { GetServerSideProps } from "next";
 import Head from 'next/head';
+import React from 'react';
 import Footer from '../../components/Footer';
 import Header from '../../components/Header';
 import SideBar from '../../components/SideBar';
 import { api } from '../../services/api';
 import styles from '../../styles/Assets.module.scss';
+import { CompanyType, UnitType } from '../../types/types';
+import { formatsMetric, formatsSpecification } from '../../utils/formatText';
 
 type Specifications = {
   maxTemp: number,
@@ -50,7 +53,7 @@ export default function AssetDetails({ assetDetails, statusColor }: AssetDetails
         <title>{assetDetails.name} | Tractian Challenge</title>
       </Head>
       <Layout style={{ minHeight: '100vh' }}>
-        <SideBar defaultKey="2" />
+        <SideBar defaultKey="1" />
         <Layout className={styles.siteLayout}>
           <Header title="Assets Details" />
           <Content style={{ margin: 32, padding: 32, backgroundColor: "#FFF" }} >
@@ -65,36 +68,40 @@ export default function AssetDetails({ assetDetails, statusColor }: AssetDetails
               title="Asset Info"
               bordered
               size='small'
+              layout='vertical'
             >
-              <Descriptions.Item label="Model" span={2}>{assetDetails.model}</Descriptions.Item>
-              <Descriptions.Item label="Company" span={2}>{assetDetails.company}</Descriptions.Item>
-              <Descriptions.Item label="Status" span={2}>
+              <Descriptions.Item label="Model">{assetDetails.model}</Descriptions.Item>
+              <Descriptions.Item label="Company">{assetDetails.company}</Descriptions.Item>
+              <Descriptions.Item label="Unit">{assetDetails.unit}</Descriptions.Item>
+              <Descriptions.Item label="Status">
                 <Badge status={statusColor} text={assetDetails.status} />
               </Descriptions.Item>
-              <Descriptions.Item label="Healtscore" span={2}>{assetDetails.healthscore}</Descriptions.Item>
-              <Descriptions.Item label="Metrics" span={2}>
-                {Object.entries(assetDetails.metrics).map(metric => (
-                  <>
-                    {`${metric[0]}: ${metric[1]}`}<br />
-                  </>
-                ))}
-              </Descriptions.Item>
-              <Descriptions.Item label="Specifications" span={2}>
-                {Object.entries(assetDetails.specifications).map(specification => (
-                  <>
-                    {`${specification[0]}: ${specification[1]}`}<br />
-                  </>
-                ))}
-              </Descriptions.Item>
-              <Descriptions.Item label="Sensors" span={2}>
-                {assetDetails.sensors.map(sensor => (
-                  <>
+              <Descriptions.Item label="Healtscore">{assetDetails.healthscore}</Descriptions.Item>
+              <Descriptions.Item label="Sensors">
+                {assetDetails.sensors.map((sensor, index) => (
+                  <React.Fragment key={index}>
                     {sensor}
                     <br />
-                  </>
+                  </React.Fragment>
                 ))}
               </Descriptions.Item>
-              <Descriptions.Item label="Unit" span={2}>{assetDetails.unit}</Descriptions.Item>
+              <Descriptions.Item label="Metrics" span={3}>
+                {Object.entries(assetDetails.metrics).map((metric, index) => (
+                  <React.Fragment key={index}>
+                    {`${formatsMetric(metric[0])}: ${metric[1]}`}<br />
+                  </React.Fragment>
+                ))}
+              </Descriptions.Item>
+              <Descriptions.Item label="Specifications" span={3}>
+                {Object.entries(assetDetails.specifications).map((specification, index) => (
+                  specification[1] === null
+                    ? null
+                    : <React.Fragment key={index}>
+                      {`${formatsSpecification(specification[0])}: ${specification[1]}`}
+                    <br />
+                </React.Fragment>
+                ))}
+              </Descriptions.Item>
             </Descriptions>
           </Content>
           <Footer />
@@ -111,8 +118,8 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   const companiesResponse = await api.get('/companies');
   const unitsResponse = await api.get('/units');
 
-  const company = companiesResponse.data.filter(company => company.id === assetResponse.data.companyId);
-  const unit = unitsResponse.data.filter(unit => unit.id === assetResponse.data.unitId);
+  const company = companiesResponse.data.filter((company: CompanyType) => company.id === assetResponse.data.companyId);
+  const unit = unitsResponse.data.filter((unit: UnitType) => unit.id === assetResponse.data.unitId);
 
   const assetDetails = {
     id: assetResponse.data.id,
@@ -124,8 +131,8 @@ export const getServerSideProps: GetServerSideProps = async ({ params }) => {
     image: assetResponse.data.image,
     specifications: assetResponse.data.specifications,
     metrics: assetResponse.data.metrics,
-    unit: unit[0].name.replace('Unidade', ''),
-    company: company[0].name.replace('Empresa', ''),
+    unit: unit[0].name,
+    company: company[0].name,
   };
 
   let statusColor = ''

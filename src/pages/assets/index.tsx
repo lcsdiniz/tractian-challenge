@@ -40,7 +40,7 @@ export default function Assets({ assetsTableData, assetsList, companiesList, uni
   const tableData = assetsTableData;
 
 
-  const updateAsset = (id) => {
+  const updateAsset = (id: string | number) => {
     setTimeout(() => {
       message.success('Asset updated!');
     }, 1500);
@@ -99,7 +99,7 @@ export default function Assets({ assetsTableData, assetsList, companiesList, uni
       render: (unit) => 
         <Select style={{ width: 150 }} placeholder="Select user" defaultValue={unit} onChange={handleChange}>
           {unitsList.map(unit => (
-            <Option value={unit.name}>{unit.name}</Option>
+            <Option key={unit.id} value={unit.name}>{unit.name}</Option>
           ))}
         </Select>,
     },
@@ -110,7 +110,7 @@ export default function Assets({ assetsTableData, assetsList, companiesList, uni
       render: (company) => 
         <Select style={{ width: 150 }} placeholder="Select user" defaultValue={company} onChange={handleChange}>
           {companiesList.map(company => (
-            <Option value={company.name}>{company.name}</Option>
+            <Option key={company.id} value={company.name}>{company.name}</Option>
           ))}
         </Select>,
     },
@@ -121,7 +121,7 @@ export default function Assets({ assetsTableData, assetsList, companiesList, uni
       render: () => 
         <Select style={{ width: 150 }} placeholder="Select user" onChange={handleChange}>
           {usersList.map(user => (
-            <Option value={user.name}>{user.name}</Option>
+            <Option key={user.id} value={user.name}>{user.name}</Option>
           ))}
         </Select>,
     },
@@ -158,7 +158,7 @@ export default function Assets({ assetsTableData, assetsList, companiesList, uni
               }
               key="1"
             >
-              <Table dataSource={tableData} columns={columns} />
+              <Table dataSource={tableData} columns={columns} rowKey="id" />
             </TabPane>
             <TabPane
               tab={
@@ -197,10 +197,10 @@ export const getStaticProps: GetStaticProps = async () => {
   const companiesResponse = await api.get('/companies');
   const unitsResponse = await api.get('/units');
 
-  const assetsTableData = assetsResponse.data.map((asset) => {
+  const assetsTableData = assetsResponse.data.map((asset: AssetType) => {
     const { id, model, status, name } = asset;
-    const company = companiesResponse.data.filter(company => company.id === asset.companyId);
-    const unit = unitsResponse.data.filter(unit => unit.id === asset.unitId);
+    const company = companiesResponse.data.filter((company: CompanyType) => company.id === asset.companyId);
+    const unit = unitsResponse.data.filter((unit: UnitType)=> unit.id === asset.unitId);
 
     const formattedModel = model.charAt(0).toUpperCase() + model.slice(1);
     const formattedStatus = status.replace('in', '');

@@ -2,12 +2,13 @@ import { Layout, Table } from 'antd';
 import "antd/dist/antd.css";
 import { GetStaticProps } from "next";
 import Head from 'next/head';
-import React, { useState } from 'react';
+import React from 'react';
 import Footer from '../components/Footer';
 import Header from '../components/Header';
 import SideBar from '../components/SideBar';
 import { api } from '../services/api';
 import styles from '../styles/Assets.module.scss';
+import { CompanyType, UserType } from '../types/types';
 
 const { Content } = Layout;
 
@@ -25,7 +26,6 @@ interface UnitsProps {
 
 
 export default function Units({ unitsTableData }: UnitsProps) {
-  const [dataSource, setDataSource] = useState(unitsTableData);
 
   const columns = [
     {
@@ -57,7 +57,7 @@ export default function Units({ unitsTableData }: UnitsProps) {
           <Content style={{ padding: "0 32px" }}>
             
             <div className={styles.siteLayoutBackground} style={{ marginTop: 16, minHeight: 360 }}>
-              <Table dataSource={dataSource} columns={columns} />
+              <Table dataSource={unitsTableData} columns={columns} rowKey="id" />
             </div>
           </Content>
           <Footer />
@@ -72,13 +72,13 @@ export const getStaticProps: GetStaticProps = async () => {
   const unitsResponse = await api.get('/units');
   const companiesResponse = await api.get('/companies');
 
-  const unitsTableData = unitsResponse.data.map(user => {
-    const company = companiesResponse.data.filter(company => company.id === user.companyId);
+  const unitsTableData = unitsResponse.data.map((user: UserType) => {
+    const company = companiesResponse.data.filter((company: CompanyType) => company.id === user.companyId);
 
     return {
       id: user.id,
-      name: user.name.replace('Unidade', ''),
-      company: company[0].name.replace('Empresa', ''),
+      name: user.name,
+      company: company[0].name,
     }
   })
 
